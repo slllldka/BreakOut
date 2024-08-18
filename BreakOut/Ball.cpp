@@ -12,6 +12,7 @@
 #include <cstdlib>
 
 extern std::pair<int, int> windowSize;
+extern double windowScale;
 
 extern int stage;
 extern int death;
@@ -151,8 +152,12 @@ void Ball::update() {
 	y += (curTime - prevTime) * velocity * sin(angle * M_PI / 180);
 }
 void Ball::paint(HDC hdc) {
-	Ellipse(hdc, x - radius, y - radius, x + radius, y + radius);
-	//Ellipse(hdc, 300, 500, 400, 600);
+	RECT rect = { x - radius, y - radius, x + radius, y + radius };
+	rect.left *= windowScale;
+	rect.top *= windowScale;
+	rect.right *= windowScale;
+	rect.bottom *= windowScale;
+	Ellipse(hdc, rect.left, rect.top, rect.right, rect.bottom);
 }
 
 void Ball::changeAngleUp() {

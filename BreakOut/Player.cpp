@@ -4,6 +4,7 @@
 #include <utility>
 
 extern std::pair<int, int> windowSize;
+extern double windowScale;
 
 extern bool leftPressed;
 extern bool rightPressed;
@@ -53,22 +54,12 @@ void Player::update() {
 }
 
 void Player::paint(HDC hdc) {
-	Rectangle(hdc, x - width / 2, y - height / 2, x + width / 2, y + height / 2);
-	/*Rectangle(hdc, 0, 0, 100, 100);
-	Rectangle(hdc, 0, 100, 100, 200);
-	Rectangle(hdc, 0, 200, 100, 300);
-	Rectangle(hdc, 0, 300, 100, 400);
-	Rectangle(hdc, 0, 400, 100, 500);
-	Rectangle(hdc, 0, 500, 100, 600);
-
-	Rectangle(hdc, 0, 0, 100, 100);
-	Rectangle(hdc, 100, 0, 200, 100);
-	Rectangle(hdc, 200, 0, 300, 100);
-	Rectangle(hdc, 300, 0, 400, 100);
-	Rectangle(hdc, 400, 0, 500, 100);
-	Rectangle(hdc, 500, 0, 600, 100);
-	Rectangle(hdc, 600, 0, 700, 100);
-	Rectangle(hdc, 700, 0, 800, 100);*/
+	RECT rect = { x - width / 2, y - height / 2, x + width / 2, y + height / 2 };
+	rect.left *= windowScale;
+	rect.top *= windowScale;
+	rect.right *= windowScale;
+	rect.bottom *= windowScale;
+	Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
 }
 
 void Player::moveLeft() {

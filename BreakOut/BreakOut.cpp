@@ -20,6 +20,8 @@ HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
 std::pair<int, int> windowSize = { 300, 400 };  // 창 크기
+double windowScale = 1;
+int NCMDSHOW;
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -133,6 +135,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
+   NCMDSHOW = nCmdShow;
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
 
@@ -165,6 +168,8 @@ bool rightPressed = false;
 long rightPressedTime = 0;
 long rightReleasedTime = 0;
 
+bool leftAltPressed = false;
+
 long prevTime = 0;
 long curTime = 0;
 
@@ -186,6 +191,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     switch (message)
     {
+    case WM_SYSCOMMAND:
+        switch (wParam) {
+        case SC_KEYMENU:
+            return 0;
+        }
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);
@@ -206,11 +216,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_SYSKEYDOWN:
         {
             switch (wParam) {
+            case VK_MENU:
+                break;
+            case VK_RETURN:
+                windowScale = 2.5 - windowScale;
+                RECT rect = { 0, 0, windowSize.first * windowScale, windowSize.second * windowScale };
+                AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
+                SetWindowPos(hWnd, NULL, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_FRAMECHANGED);
+                ShowWindow(hWnd, NCMDSHOW);
+            }
+        }
+    case WM_SYSKEYUP:
+        {
+            switch (wParam) {
+            case VK_MENU:
+                break;
             }
         }
     case WM_KEYDOWN:
         {
             switch (wParam) {
+            case VK_MENU:
+                break;
             case VK_LEFT:
                 if (!leftPressed) {
                     leftPressed = true;
@@ -244,6 +271,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_KEYUP:
         {
             switch (wParam) {
+            case VK_MENU:
+                break;
             case VK_RIGHT:
                 rightPressed = false;
                 rightReleasedTime = clock();
@@ -295,12 +324,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 sprintf_s(str, "STAGE %d", stage + 1);
                 SetTextAlign(hdc, TA_TOP | TA_CENTER);
                 SetTextCharacterExtra(hdc, 0);
-                TextOut(hdc, 150, 15, str, strlen(str));
+                TextOut(hdc, 150 * windowScale, 15 * windowScale, str, strlen(str));
 
                 sprintf_s(str, "DEATH: %d", death);
                 SetTextAlign(hdc, TA_TOP | TA_RIGHT);
                 SetTextCharacterExtra(hdc, 0);
-                TextOut(hdc, 280, 15, str, strlen(str));
+                TextOut(hdc, 280 * windowScale, 15 * windowScale, str, strlen(str));
 
                 if (ball.getVelocity() == 0) {
                     char str[] = "PRESS SPACE!";
@@ -309,23 +338,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     SelectObject(hdc, newFont);*/
                     SetTextAlign(hdc, TA_TOP | TA_CENTER);
                     SetTextCharacterExtra(hdc, 1);
-                    TextOut(hdc, 150, 200, str, strlen(str));
+                    TextOut(hdc, 150 * windowScale, 200 * windowScale, str, strlen(str));
                 }
             }
             else {
                 SetTextAlign(hdc, TA_TOP | TA_CENTER);
                 SetTextCharacterExtra(hdc, 0);
-                TextOut(hdc, 150, 170, "CONGRATULATIONS!!", strlen("CONGRATULATIONS!!"));
+                TextOut(hdc, 150 * windowScale, 170 * windowScale, "CONGRATULATIONS!!", strlen("CONGRATULATIONS!!"));
 
                 sprintf_s(str, "DEATH: %d", death);
                 SetTextAlign(hdc, TA_TOP | TA_CENTER);
                 SetTextCharacterExtra(hdc, 0);
-                TextOut(hdc, 150, 190, str, strlen(str));
+                TextOut(hdc, 150 * windowScale, 190 * windowScale, str, strlen(str));
 
 
                 SetTextAlign(hdc, TA_TOP | TA_CENTER);
                 SetTextCharacterExtra(hdc, 0);
-                TextOut(hdc, 150, 220, "PRESS SPACE TO RESTART!", strlen("PRESS SPACE TO RESTART!"));
+                TextOut(hdc, 150 * windowScale, 220 * windowScale, "PRESS SPACE TO RESTART!", strlen("PRESS SPACE TO RESTART!"));
             }
 
             ball.paint(hdc);
